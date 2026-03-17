@@ -3,7 +3,35 @@ package middleware
 import(
 	"net/http"
 	"log"
+	"sync/atomic"
 )
+
+// since we are exporting all thse functions they should be public. as in capital first letter.
+
+type ApiConfig struct {
+	fileserverHits atomic.Int32
+}
+
+func (cfg *ApiConfig) MiddlewareMetricsInc(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request){ // http.HandlerFunc is used not HandleFunc
+		hits := cfg.fileserverHits.Add(1) //Increamenting the request count
+		log.Printf("Number of request hits : %v", hits)
+		next.ServeHTTP(w, req)
+	})
+}
+
+func (cfg * ApiConfig) Metric(w http.ResponseWriter, req *http.Request){
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	log.Printf("Hits:%s", cfg.fileserverHits.Load())//printing the requests count
+}
+
+func (cfg * ApiConfig) Reset(w http.ResponseWriter, req *http.Request){
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	cfg.fileserverHits.Store(0) //resetting the count.
+}
+
 
 func MiddlewareLog(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
