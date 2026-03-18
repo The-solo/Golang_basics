@@ -17,14 +17,14 @@ func main(){
 	router.Handle("/app/",http.StripPrefix("/app/", http.FileServer(http.Dir("."))))
 	
 	// we write the response to ResponseWriter.
-	router.HandleFunc("GET /healthz", func(w http.ResponseWriter, req *http.Request){
+	router.HandleFunc("GET /api/healthz", func(w http.ResponseWriter, req *http.Request){
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8") // obvious headers.
 		w.WriteHeader(http.StatusOK)
 		io.WriteString(w, "The server is up & ready to server.")
 	})
 
-	router.HandleFunc("GET /metrics",(apiCfg.Metric)) //metric router.
-	router.HandleFunc("POST /reset",(apiCfg.Reset)) //metric reset router
+	router.HandleFunc("GET /api/metrics",(apiCfg.Metric)) //metric router.
+	router.HandleFunc("POST /api/reset",(apiCfg.Reset)) //metric reset router
 	
 	port := "8080"
 	server := &http.Server{
