@@ -23,8 +23,8 @@ func main(){
 		io.WriteString(w, "The server is up & ready to server.")
 	})
 
-	router.HandleFunc("GET /api/metrics",(apiCfg.Metric)) //metric router.
-	router.HandleFunc("POST /api/reset",(apiCfg.Reset)) //metric reset router
+	router.HandleFunc("GET /admin/metrics",(apiCfg.Metric)) //metric router.
+	router.HandleFunc("POST /admin/reset",(apiCfg.Reset)) //metric reset router
 	
 	port := "8080"
 	server := &http.Server{

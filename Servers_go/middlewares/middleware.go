@@ -1,6 +1,7 @@
 package middleware
 
 import(
+	"fmt"
 	"net/http"
 	"log"
 	"sync/atomic"
@@ -21,9 +22,17 @@ func (cfg *ApiConfig) MiddlewareMetricsInc(next http.Handler) http.Handler {
 }
 
 func (cfg * ApiConfig) Metric(w http.ResponseWriter, req *http.Request){
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	log.Printf("Hits:%s", cfg.fileserverHits.Load())//printing the requests count
+	//	log.Printf("Hits:%s", cfg.fileserverHits.Load())//printing the requests count
+	htmlContent := fmt.Sprintf(`<html>
+	<body>
+	<h1>Welcome to the Admin pannel</h1>
+	<p>The server has been visited %d times!</p>
+	</body>
+	</html>`, cfg.fileserverHits.Load())
+
+	fmt.Fprint(w, htmlContent)  // w/io.writer -> destination and content returns the no. of bytes.
 }
 
 func (cfg * ApiConfig) Reset(w http.ResponseWriter, req *http.Request){
