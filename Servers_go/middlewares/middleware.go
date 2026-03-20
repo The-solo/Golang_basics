@@ -6,8 +6,7 @@ import(
 	"server_basics.com/config"
 )
 
-// since we are exporting all thse functions they should be public. as in capital first letter.
-
+// These are now regular functions with closure because the struct is in another file.
 func MiddlewareMetricsInc (cfg * config.ApiConfig, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request){ // http.HandlerFunc is used not HandleFunc
 		hits := cfg.FileserverHits.Add(1) //Increamenting the request count

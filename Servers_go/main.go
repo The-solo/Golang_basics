@@ -4,7 +4,7 @@ import(
 	"io"
 	"fmt"
 	"net/http"
-	"server_basics.com/middlewares" //importing the middlewares
+	"server_basics.com/middlewares"
 	"server_basics.com/handlers"
 	"server_basics.com/config"
 )
@@ -25,8 +25,10 @@ func main(){
 		io.WriteString(w, "The server is up & ready to server.")
 	})
 
-	router.HandleFunc("GET /admin/metrics",handlers.Metric(apiCfg))
+	router.HandleFunc("GET /admin/metrics",handlers.Metric(apiCfg)) //normal func & closure mechanism. 
 	router.HandleFunc("POST /admin/reset",handlers.Reset(apiCfg))
+	router.HandleFunc("POST /api/validate_chirp",handlers.ChirpValidator)
+
 	
 	port := "8080"
 	server := &http.Server{
