@@ -1,6 +1,7 @@
 package handlers
 
 import(
+	"io"
 	"fmt"
 	"log"
 	"strings"
@@ -9,6 +10,11 @@ import(
 	"server_basics.com/config"
 )
 
+func ServerHealthCheck(w http.ResponseWriter, req * http.Request){
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8") // obvious headers.
+	w.WriteHeader(http.StatusOK)
+	io.WriteString(w, "The server is up & ready to server.")
+}
 
 // These are now regular functions with closure because the struct is in another file.
 func Metric(cfg * config.ApiConfig) http.HandlerFunc{
@@ -102,6 +108,5 @@ func ChirpValidator(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(500)
 		return
 	}
-	respondWithJSON(w, 200, data)
-	
+	respondWithJSON(w, 200, data)	
 }

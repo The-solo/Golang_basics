@@ -1,7 +1,6 @@
 package main
 
 import(
-	"io"
 	"fmt"
 	"net/http"
 	"server_basics.com/middlewares"
@@ -19,12 +18,7 @@ func main(){
 	router.Handle("/app/",http.StripPrefix("/app/", http.FileServer(http.Dir("."))))
 	
 	// we write the response to ResponseWriter.
-	router.HandleFunc("GET /api/healthz", func(w http.ResponseWriter, req *http.Request){
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8") // obvious headers.
-		w.WriteHeader(http.StatusOK)
-		io.WriteString(w, "The server is up & ready to server.")
-	})
-
+	router.HandleFunc("GET /api/healthz",handlers.ServerHealthCheck) 
 	router.HandleFunc("GET /admin/metrics",handlers.Metric(apiCfg)) //normal func & closure mechanism. 
 	router.HandleFunc("POST /admin/reset",handlers.Reset(apiCfg))
 	router.HandleFunc("POST /api/validate_chirp",handlers.ChirpValidator)
