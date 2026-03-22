@@ -3,6 +3,7 @@ package handlers
 import(
 	"fmt"
 	"log"
+	"strings"
 	"net/http"
 	"encoding/json"
 	"server_basics.com/config"
@@ -33,6 +34,7 @@ func Reset (cfg * config.ApiConfig) http.HandlerFunc{
 	}
 }
 
+//function for the error response.
 func respondWithError(w http.ResponseWriter, code int, msg string){
 	w.Header().Set("Content-Type", "text/utf-8")
 	w.WriteHeader(code)
@@ -40,16 +42,31 @@ func respondWithError(w http.ResponseWriter, code int, msg string){
 	return
 }
 
-func respondWithJSON(w http.ResponseWriter, code int, payload interface{}){
+//function for JsonResponse.
+
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) { // Changed interface{} to []byte
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	w.Write(payload.([]byte))
+	w.Write((payload).([]byte))
 	return
+}
+func checkFoulWords(body string) string{
+	restricted := [3]string{"kerfuffle", "sharbert", "fornax"}
+	newSlice := strings.Split(body, " ") //slice of words seperated by space.
+
+	for i := range newSlice{
+		for _, foulWord := range restricted{
+			if strings.ToLower(newSlice[i]) == foulWord{
+				newSlice[i] = "****"
+			}
+		}
+	}
+	return strings.Join(newSlice, " ") // rejoining the cleaned slice.
 }
 
 func ChirpValidator(w http.ResponseWriter, req *http.Request) {	
 	type reqParam struct{
-		Body string
+		Body string `json:"chirp`
 	}
 
 	decoder := json.NewDecoder(req.Body)
@@ -66,16 +83,17 @@ func ChirpValidator(w http.ResponseWriter, req *http.Request) {
 	if len(params.Body) > 140 {
 		respondWithError(w, 400, "Chirp is too long")
 		return
-	}
-
+	} 
 	defer req.Body.Close()
 
 	type resValue struct {
 		Valid bool
+		Output string 
 	}
 
-	resBody := resValue{
-		Valid : true,
+	resBody := resValue{ 
+		Valid : true, // making fields public coz they need to be exported to be used by "encoding/json" 
+		Output : checkFoulWords(params.Body), // which is an external code.
 	}
 
 	data, err := json.Marshal(resBody)
@@ -85,4 +103,5 @@ func ChirpValidator(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	respondWithJSON(w, 200, data)
+	
 }
