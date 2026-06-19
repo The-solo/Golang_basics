@@ -49,16 +49,16 @@ func respondWithError(w http.ResponseWriter, code int, msg string){
 }
 
 //function for JsonResponse.
-
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) { // Changed interface{} to []byte
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	w.Write((payload).([]byte))
 	return
 }
+
 func checkFoulWords(body string) string{
 	restricted := [3]string{"kerfuffle", "sharbert", "fornax"}
-	newSlice := strings.Split(body, " ") //slice of words seperated by space.
+	newSlice := strings.Split(body, " ") //returns slice of words seperated by space.
 
 	for i := range newSlice{
 		for _, foulWord := range restricted{

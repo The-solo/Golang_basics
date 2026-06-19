@@ -11,7 +11,6 @@ import(
 func main(){
 
 	router := http.NewServeMux() //Http request multiplexer/router
-
 	apiCfg := &config.ApiConfig{}// making the local copy.
 	
 	// serving files from the current dir (index.html)
@@ -22,13 +21,13 @@ func main(){
 	router.HandleFunc("GET /admin/metrics",handlers.Metric(apiCfg)) //normal func & closure mechanism. 
 	router.HandleFunc("POST /admin/reset",handlers.Reset(apiCfg))
 	router.HandleFunc("POST /api/validate_chirp",handlers.ChirpValidator)
-
 	
 	port := "8080"
 	server := &http.Server{
 		Addr : ":"+port,
 		Handler : router,
 	}
+
 	fmt.Println("The server is up & running on port"+server.Addr+"....")
 	
  	err := http.ListenAndServe(server.Addr, 
