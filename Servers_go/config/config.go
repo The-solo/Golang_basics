@@ -8,6 +8,6 @@ import (
 
 type ApiConfig struct {
     FileserverHits atomic.Int32 // to make sure shared state of data.
-	Database *database.Queries //
+	Database *database.Queries
 }
 
