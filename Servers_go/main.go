@@ -2,16 +2,30 @@ package main
 
 import(
 	"fmt"
+	"os"
 	"net/http"
+	"database/sql"
 	"server_basics.com/middlewares"
 	"server_basics.com/handlers"
 	"server_basics.com/config"
+	_ "github.com/lib/pq" //imported for side effects.
+	"github.com/joho/godotenv"
+	"server_basics.com/internal/database"
 )
 
 func main(){
 
+	godotenv.Load() //Loading envirement variable
+	dbURL := os.Getenv("DB_URL") //getting the DB_URL from .env 
+
+	db, err := sql.Open("postgres", dbURL)//open connection to your dbQueries
+	dbQueries := database.New(db)
+
 	router := http.NewServeMux() //Http request multiplexer/router
-	apiCfg := &config.ApiConfig{}// making the local copy.
+
+	apiCfg := &config.ApiConfig{	
+		Database: dbQueries, // not a type but a value.
+	}// making the local copy.
 	
 	// serving files from the current dir (index.html)
 	router.Handle("/app/",http.StripPrefix("/app/", http.FileServer(http.Dir("."))))
@@ -30,7 +44,7 @@ func main(){
 
 	fmt.Println("The server is up & running on port"+server.Addr+"....")
 	
- 	err := http.ListenAndServe(server.Addr, 
+ 	err = http.ListenAndServe(server.Addr, 
 		middleware.MiddlewareLog(
 			middleware.MiddlewareMetricsInc(apiCfg, server.Handler), //wrapped the handler inside the count middlware.
 	)) // logging every request handler using middlware.
