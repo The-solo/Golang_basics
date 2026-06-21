@@ -15,7 +15,11 @@ import(
 
 func main(){
 
-	godotenv.Load() //Loading envirement variable
+	err := godotenv.Load() //Loading envirement variable
+	if err != nil {
+		panic("Error loading .env file!!.")
+	}
+
 	dbURL := os.Getenv("DB_URL") //getting the DB_URL from .env 
 
 	db, err := sql.Open("postgres", dbURL)//open connection to your dbQueries
@@ -27,9 +31,8 @@ func main(){
 
 	router := http.NewServeMux() //Http request multiplexer/router
 	apiCfg := &config.ApiConfig{	
-		Database: dbQueries, // not a type but a value.
-	}// making the local copy.
-	
+		Database: dbQueries, 
+	}	
 	// serving files from the current dir (index.html)
 	router.Handle("/app/",http.StripPrefix("/app/", http.FileServer(http.Dir("."))))
 	
@@ -38,6 +41,11 @@ func main(){
 	router.HandleFunc("GET /admin/metrics",handlers.Metric(apiCfg)) //normal func & closure mechanism. 
 	router.HandleFunc("POST /admin/reset",handlers.Reset(apiCfg))
 	router.HandleFunc("POST /api/validate_chirp",handlers.ChirpValidator)
+
+	handlerState := &handlers.ApiCfgState{
+		DB: dbQueries, // This now works because DB is capitalized in user.go!
+	} 
+	router.HandleFunc("POST /api/users", handlerState.CreateUserHandler)
 	
 	port := "8080"
 	server := &http.Server{

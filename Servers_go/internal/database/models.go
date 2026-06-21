@@ -6,6 +6,7 @@ package database
 
 import (
 	"database/sql"
+
 	"github.com/google/uuid"
 )
 
