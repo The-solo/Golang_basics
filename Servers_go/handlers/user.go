@@ -2,10 +2,11 @@ package handlers
 
 import(
 	"log"
-	//"time"
+	"time"
 	//"context"
 	"net/http"
 	"encoding/json"	
+	"github.com/google/uuid"
 	"server_basics.com/internal/database"
 
 )
@@ -26,6 +27,8 @@ func (state *ApiCfgState)CreateUserHandler(w http.ResponseWriter, req *http.Requ
 	decoder := json.NewDecoder(req.Body)
 	params := reqParam{}
 
+	defer req.Body.Close()
+
 	err := decoder.Decode(&params)
 	if err != nil {
 		log.Printf("Error decoding the request body: %s", err)
@@ -40,9 +43,30 @@ func (state *ApiCfgState)CreateUserHandler(w http.ResponseWriter, req *http.Requ
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	type User struct {
+		ID        uuid.UUID `json:"id"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
+		Email     string    `json:"email"`
+	}
+
+	resBody := User{
+		ID : user.ID,
+		CreatedAt : user.CreatedAt.Time,
+		UpdatedAt : user.UpdatedAt.Time,
+		Email : user.Email,
+	}
+
+	data, err := json.Marshal(resBody)
+	if err != nil{
+		log.Printf("Error marshaling the json %s", err)
+		w.WriteHeader(500)
+		return
+	}
 	// 5. Send back the automatically generated sqlc user object
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(user)
+	json.NewEncoder(w).Encode(data)
 }
 
