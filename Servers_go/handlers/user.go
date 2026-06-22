@@ -10,7 +10,8 @@ import(
 
 )
 
-// We imported database.Queries directly.
+// We imported database.Queries directly. 
+// we made this struct to get access to db and attach below method to it.
 type ApiCfgState struct {
 	DB *database.Queries
 }
@@ -36,10 +37,9 @@ func (state *ApiCfgState)CreateUserHandler(w http.ResponseWriter, req *http.Requ
 	user, err := state.DB.CreateUser(ctx, params.Email)
 	if err != nil {
 		log.Printf("Error creating user in DB: %s", err)
-		w.WriteHeader(http.StatusInternalServerError) // 500 for database failures
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
 	// 5. Send back the automatically generated sqlc user object
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

@@ -6,7 +6,6 @@ import(
 	"log"
 	//"time"
 	"strings"
-	//"context"
 	"net/http"
 	"encoding/json"	
 	"server_basics.com/config"
@@ -34,8 +33,20 @@ func Metric(cfg * config.ApiConfig) http.HandlerFunc{
 		fmt.Fprint(w, htmlContent)  // w/io.writer -> destination and content returns the no. of bytes.
 	}
 } 
+
 func Reset (cfg * config.ApiConfig) http.HandlerFunc{
 	return func(w http.ResponseWriter, req *http.Request){
+
+		ctx := req.Context()// initializing the context
+		if cfg.Platform != "dev"{ // Dangerours method allowed in local development only.
+			w.WriteHeader(403)
+			return 
+		}
+
+		err := cfg.Database.DeleteUser(ctx) //deleting the database.
+		if err != nil{
+			log.Printf("error deleting the database: %s",err)
+		}
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
 		cfg.FileserverHits.Store(0) //resetting the count.
