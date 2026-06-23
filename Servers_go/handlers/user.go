@@ -10,45 +10,56 @@ import(
 	"server_basics.com/internal/database"
 
 )
-
 // We imported database.Queries directly. 
-// we made this struct to get access to db and attach below method to it.
+// we made this struct to get access to db and attach below methods to it.
 type ApiCfgState struct {
 	DB *database.Queries
 }
 
+type User struct {
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Email     string    `json:"email"`
+}
+
+// func decodeBody(reqParam{}, w http.ResponseWriter, req *http.Request) (param, error){ 
+//
+// 	decoder := json.NewDecoder(req.Body)
+// 	param := reqParam{}
+// 	defer req.Body.Close()
+//
+// 	err := decoder.Decode(&reqParam)
+// 	if err != nil {
+// 		log.Printf("Error decoding the request body: %s", err)
+// 		w.WriteHeader(http.StatusBadRequest) // 400 is safer for bad JSON input
+// 		return nil, err
+// 	}
+// 	return param, nil 
+// }
+
 func (state *ApiCfgState)CreateUserHandler(w http.ResponseWriter, req *http.Request) {
 
-	ctx := req.Context()// initializing the context
 	type reqParam struct {
 		Email string `json:"email"`
 	}
 
 	decoder := json.NewDecoder(req.Body)
-	params := reqParam{}
-
+	param := reqParam{}
 	defer req.Body.Close()
 
-	err := decoder.Decode(&params)
+	err := decoder.Decode(&param)
 	if err != nil {
 		log.Printf("Error decoding the request body: %s", err)
-		w.WriteHeader(http.StatusBadRequest) // 400 is safer for bad JSON input
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	// 4. Use the local DB copy to execute your sqlc generated query.
-	user, err := state.DB.CreateUser(ctx, params.Email)
+	user, err := state.DB.CreateUser(req.Context(), param.Email)//using context directly.
 	if err != nil {
 		log.Printf("Error creating user in DB: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	}
-
-	type User struct {
-		ID        uuid.UUID `json:"id"`
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
-		Email     string    `json:"email"`
 	}
 
 	resBody := User{
@@ -69,4 +80,50 @@ func (state *ApiCfgState)CreateUserHandler(w http.ResponseWriter, req *http.Requ
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(data)
 }
+
+//To create chirp.
+func (state *ApiCfgState)CreateChirpHandler(w http.ResponseWriter, req *http.Request){
+
+	type reqParam struct {
+		Body string    `json:"body"`
+		ID   uuid.UUID `json:"user_id"`
+	}
+
+	decoder := json.NewDecoder(req.Body)
+	param := reqParam{}
+	defer req.Body.Close()
+
+	err := decoder.Decode(&param)
+	if err != nil {
+		log.Printf("Error decoding the request body: %s", err)
+		w.WriteHeader(400)
+		return
+	}
+	if len(param.Body) > 140 {
+		respondWithError(w, 400, "Chirp is too long")
+		return
+	}
+
+	cleanBody := checkFoulWords(param.Body) //remvoing local foul words.
+	chirp, err := state.DB.CreateChirp(req.Context(),
+// database folder here which contains args CreateChirpParams function.
+// with the Body and UserID parameters.
+		database.CreateChirpParams{ 		
+			Body:   cleanBody,
+			UserID: param.ID,
+		},
+	)
+
+	if err != nil {
+		log.Printf("Error creating chirp in DB: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(chirp)
+}
+
+
 
