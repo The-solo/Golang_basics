@@ -40,13 +40,14 @@ func main(){
 	router.HandleFunc("GET /api/healthz",handlers.ServerHealthCheck) 
 	router.HandleFunc("GET /admin/metrics",handlers.Metric(apiCfg)) //normal func & closure mechanism. 
 	router.HandleFunc("POST /admin/reset",handlers.Reset(apiCfg))
-	router.HandleFunc("POST /api/validate_chirp",handlers.ChirpValidator)
+	//router.HandleFunc("POST /api/validate_chirp",handlers.ChirpValidator)
 	
 	handlerState := &handlers.ApiCfgState{
 		DB: dbQueries, // This now works because DB is capitalized in user.go!
 	} 
 	router.HandleFunc("POST /api/users", handlerState.CreateUserHandler)
 	router.HandleFunc("POST /api/chirps", handlerState.CreateChirpHandler)
+	router.HandleFunc("GET /api/chirps",handlerState.ReturnAllChirp) //Get All chirps
 
 	
 	port := "8080"

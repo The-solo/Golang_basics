@@ -68,4 +68,8 @@ func (state *ApiCfgState) ReturnAllChirp (w http.ResponseWriter, req *http.Reque
 	json.NewEncoder(w).Encode(chirp)
 }
 
+func (state *ApiCfgState) GetChirp (w http.ResponseWriter, req *http.Request){
+
+}
+
 
