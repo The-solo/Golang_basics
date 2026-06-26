@@ -30,6 +30,7 @@ func main(){
 	dbQueries := database.New(db)
 
 	router := http.NewServeMux() //Http request multiplexer/router
+
 	apiCfg := &config.ApiConfig{	
 		Database: dbQueries, 
 	}	
@@ -45,9 +46,12 @@ func main(){
 	handlerState := &handlers.ApiCfgState{
 		DB: dbQueries, // This now works because DB is capitalized in user.go!
 	} 
+
 	router.HandleFunc("POST /api/users", handlerState.CreateUserHandler)
 	router.HandleFunc("POST /api/chirps", handlerState.CreateChirpHandler)
 	router.HandleFunc("GET /api/chirps",handlerState.ReturnAllChirp) //Get All chirps
+	router.HandleFunc("GET /api/chirps/{id}",handlerState.GetChirp) //Get single chirp by {id}
+
 
 	
 	port := "8080"

@@ -54,6 +54,7 @@ func (state *ApiCfgState) CreateChirpHandler (w http.ResponseWriter, req *http.R
 	json.NewEncoder(w).Encode(chirp)
 }
 
+//Get all chirps.
 func (state *ApiCfgState) ReturnAllChirp (w http.ResponseWriter, req *http.Request){
 
 	chirp, err := state.DB.GetAllChirps(req.Context())
@@ -68,8 +69,28 @@ func (state *ApiCfgState) ReturnAllChirp (w http.ResponseWriter, req *http.Reque
 	json.NewEncoder(w).Encode(chirp)
 }
 
+//get single chirp by {id}
 func (state *ApiCfgState) GetChirp (w http.ResponseWriter, req *http.Request){
 
-}
+	StringId := req.PathValue("id") //Reading the PathValue 'id'
 
+	chirpID, err := uuid.Parse(StringId) //converting string input into uuid.
+	if err != nil {
+		log.Printf("Invalid chirp ID format %s", err)
+		w.WriteHeader(500)
+		return
+	}
+	
+	chirp, err := state.DB.GetChirp(req.Context(), chirpID)
+	if err != nil{
+		log.Printf("error returning chirp %s", err)
+		w.WriteHeader(500)
+		return 
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(chirp)
+
+}
 
