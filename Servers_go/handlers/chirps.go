@@ -13,10 +13,12 @@ import(
 
 func (state *ApiCfgState) CreateChirpHandler (w http.ResponseWriter, req *http.Request){
 
-	ctx,cancle := context.WithTimeout(context.Background(), 10*time.Millisecond)
-	/*Making a context with timeout so the connection doesn't hang.
+	ctx,cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	/*
+	Making a context with timeout so the connection doesn't hang.
 	context.Background() mainly used as a top level/ parent context.
 	WithTimeout return deadline context which release the resouces.
+	The context essetiall controls lifecycle of API, netowork requests and Background operations.
 	*/
 	defer cancle()
 
