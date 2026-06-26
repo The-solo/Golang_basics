@@ -2,8 +2,8 @@ package handlers
 
 import(
 	"log"
-	//"time"
-	//"context"
+	"time"
+	"context"
 	"net/http"
 	"encoding/json"	
 	"github.com/google/uuid"
@@ -12,6 +12,13 @@ import(
 
 
 func (state *ApiCfgState) CreateChirpHandler (w http.ResponseWriter, req *http.Request){
+
+	ctx,cancle := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	/*Making a context with timeout so the connection doesn't hang.
+	context.Background() mainly used as a top level/ parent context.
+	WithTimeout return deadline context which release the resouces.
+	*/
+	defer cancle()
 
 	type reqParam struct {
 		Body string    `json:"body"`
@@ -33,8 +40,8 @@ func (state *ApiCfgState) CreateChirpHandler (w http.ResponseWriter, req *http.R
 		return
 	}
 
-	cleanBody := checkFoulWords(param.Body) //remvoing local foul words.
-	chirp, err := state.DB.CreateChirp(req.Context(),
+	cleanBody := checkFoulWords(param.Body)
+	chirp, err := state.DB.CreateChirp(ctx,
 // database folder here which contains args CreateChirpParams function.
 // with the Body and UserID parameters.
 		database.CreateChirpParams{ 		
@@ -44,7 +51,7 @@ func (state *ApiCfgState) CreateChirpHandler (w http.ResponseWriter, req *http.R
 	)
 
 	if err != nil {
-		log.Printf("Error creating chirp in DB: %s", err)
+		log.Printf("Error creating chirp in DB please try again : %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
