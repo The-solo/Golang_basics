@@ -24,7 +24,7 @@ type User struct {
 	Email     string    `json:"email"`
 }
 
-// func decodeBody(reqParam{}, w http.ResponseWriter, req *http.Request) (param, error){ 
+// func DecodeBody(reqParam{}, w http.ResponseWriter, req *http.Request) (param, error){ 
 //
 // 	decoder := json.NewDecoder(req.Body)
 // 	param := reqParam{}
@@ -80,7 +80,12 @@ func (state *ApiCfgState)CreateUserHandler(w http.ResponseWriter, req *http.Requ
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(resBody)
+	json.NewEncoder(w).Encode(resBody) //opposite to .Decode()
+	// the json.Encode() function streams data directly to the destination source 
+	// unlike marshal which creates the local copy first.
+	// both maps data to the desired output (serialization)
 }
+
+
 
 

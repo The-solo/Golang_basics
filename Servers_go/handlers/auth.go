@@ -18,7 +18,7 @@ func (state *ApiCfgState) Login(w http.ResponseWriter, req *http.Request) {
 	param := reqParam{}
 	defer req.Body.Close()
 
-	err := decoder.Decode(&param)
+	err := decoder.Decode(&param) //stictly pass by reference.
 	if err != nil {
 		log.Printf("Error decoding the request body: %s", err)
 		w.WriteHeader(http.StatusBadRequest)

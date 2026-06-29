@@ -30,17 +30,21 @@ func updateBalance(c *customer,t transaction) (error){
 	if c == nil {
 		return errors.New("Null pointer")
 	}
+
 	switch t.transactionType {
 	case "deposit":
 		(c.balance) += t.amount //automatic dereferencing.
 		return nil
+
 	case "withdrawal":
 		if (c.balance) >= t.amount{
 			(c.balance) -= t.amount
 			return nil
+
 		} else {
 			return errors.New("insufficient funds")
 		}
+
 	default:
 		return errors.New("unknown transaction type")
 	}	
