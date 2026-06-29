@@ -3,7 +3,8 @@ CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    email TEXT UNIQUE NOT NULL
+    email TEXT UNIQUE NOT NULL,
+    hashed_password TEXT NOT NULL DEFAULT 'unset'
 );
 
 CREATE TABLE chirps (
@@ -15,5 +16,6 @@ CREATE TABLE chirps (
 );
 
 -- +goose Down
+DROP TABLE chirps;
 DROP TABLE users;
 

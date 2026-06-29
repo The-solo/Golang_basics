@@ -4,10 +4,8 @@ import(
 	"io"
 	"fmt"
 	"log"
-	//"time"
 	"strings"
 	"net/http"
-	//"encoding/json"	
 	"server_basics.com/config"
 )
 

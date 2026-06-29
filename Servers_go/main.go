@@ -51,6 +51,7 @@ func main(){
 	router.HandleFunc("POST /api/chirps", handlerState.CreateChirpHandler)
 	router.HandleFunc("GET /api/chirps",handlerState.ReturnAllChirp) //Get All chirps
 	router.HandleFunc("GET /api/chirps/{id}",handlerState.GetChirp) //Get single chirp by {id}
+	router.HandleFunc("POST /api/login",handlerState.Login) // login
 
 
 	

@@ -8,6 +8,7 @@ import(
 	"encoding/json"	
 	"github.com/google/uuid"
 	"server_basics.com/internal/database"
+	"server_basics.com/internal/auth"
 
 )
 // We imported database.Queries directly. 
@@ -42,6 +43,7 @@ func (state *ApiCfgState)CreateUserHandler(w http.ResponseWriter, req *http.Requ
 
 	type reqParam struct {
 		Email string `json:"email"`
+		Password string `json:"Password"`
 	}
 
 	decoder := json.NewDecoder(req.Body)
@@ -54,8 +56,15 @@ func (state *ApiCfgState)CreateUserHandler(w http.ResponseWriter, req *http.Requ
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// 4. Use the local DB copy to execute your sqlc generated query.
-	user, err := state.DB.CreateUser(req.Context(), param.Email)//using context directly.
+
+	hash, _ := auth.HashPassword(param.Password)
+	user, err := state.DB.CreateUser(req.Context(),
+		database.CreateUserParams {
+			Email : param.Email,
+			HashedPassword : hash,
+		},
+	)
+
 	if err != nil {
 		log.Printf("Error creating user in DB: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -67,18 +76,11 @@ func (state *ApiCfgState)CreateUserHandler(w http.ResponseWriter, req *http.Requ
 		CreatedAt : user.CreatedAt.Time,
 		UpdatedAt : user.UpdatedAt.Time,
 		Email : user.Email,
-	}
+	}	
 
-	data, err := json.Marshal(resBody)
-	if err != nil{
-		log.Printf("Error marshaling the json %s", err)
-		w.WriteHeader(500)
-		return
-	}
-	// 5. Send back the automatically generated sqlc user object
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(data)
+	json.NewEncoder(w).Encode(resBody)
 }
 
 
