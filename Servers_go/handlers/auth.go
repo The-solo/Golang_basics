@@ -3,8 +3,10 @@ package handlers
 import (
 	"log"
 	"net/http"
-	"encoding/json"
+	"encoding/json"	
+	"github.com/golang-jwt/jwt/v5"
 	"server_basics.com/internal/auth"
+
 )
 
 func (state *ApiCfgState) Login(w http.ResponseWriter, req *http.Request) {
@@ -49,6 +51,11 @@ func (state *ApiCfgState) Login(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+
+// JWT token validation.
+func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {	
+
+}
 
 
 
