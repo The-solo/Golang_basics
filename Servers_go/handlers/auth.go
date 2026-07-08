@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"log"
+//	"errors"
 	"net/http"
 	"encoding/json"	
+	"github.com/google/uuid"
 	"github.com/golang-jwt/jwt/v5"
 	"server_basics.com/internal/auth"
 
@@ -52,9 +54,28 @@ func (state *ApiCfgState) Login(w http.ResponseWriter, req *http.Request) {
 }
 
 
-// JWT token validation.
+//JWT token validation.
 func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {	
 
+	token, err := jwt.ParseWithClaims(tokenString, &auth.Claims{}, func(token *jwt.Token) (any, error) {
+		return []byte(tokenSecret), nil
+	})
+
+	if err != nil {
+		log.Fatal(err)
+		return uuid.Nil, err // nil uuid return type
+
+	}
+	if claims, ok := token.Claims.(*auth.Claims); ok {
+
+		subjectStr, err := claims.GetSubject() // Contains the userId/uuid
+		if err != nil {
+			return uuid.Nil, err
+		}
+		return uuid.Parse(subjectStr) // the GetSubject method return 2 values inclduing error.
+	} 
+
+	return uuid.Nil, err
 }
 
 

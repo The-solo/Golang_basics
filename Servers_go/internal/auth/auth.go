@@ -27,22 +27,28 @@ func CheckPassword (password, hash string) (bool, error) {
 }
 
 
-// Generate the JWT token
+
+ type Claims struct {
+	 jwt.RegisteredClaims
+ }
+
 func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (string, error) {
 
 	// Basics of validation using claims.
-	claims := &jwt.RegisteredClaims{
-		IssuedAt :  jwt.NewNumericDate(time.Now()),
-		ExpiresAt : jwt.NewNumericDate(time.Now().Add(expiresIn)),
-		Issuer :    "chirpy-access",
-		Subject : userID.String(), // converting UUID to string.
+	claimsData := &Claims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(expiresIn)),
+			Issuer:    "chirpy-access",
+			Subject:   userID.String(),
+		},
 	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claimsData) // Generate token.
+	tokenString, err := token.SignedString(tokenSecret)
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims) // Generate token.
-	jwt, err := token.SignedString(tokenSecret)
 	if err != nil{
 		log.Print("Error signing key", err)
 		return "", err
 	}
-	return jwt, nil
+	return tokenString, nil
 }
