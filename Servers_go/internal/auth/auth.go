@@ -85,10 +85,11 @@ func GetBearerToken(headers http.Header) (string, error) {
 	tokenHeader := headers.Get("Authorization") //gets the first value associated with the key
 	if tokenHeader == "" {
 		log.Fatal("Empty Authorization header")
+		return "", errors.New("Missing Authorization header!")
 	}
 
 	if len(tokenHeader) > 0 {
-		token := strings.TrimPrefix(tokenHeader, "Bearer ") //triming token.
+		token := strings.TrimPrefix(tokenHeader, "Bearer ") //trimming token.
 		return token, nil
 	}
 	return "", errors.New("Missing Authorization header!")
