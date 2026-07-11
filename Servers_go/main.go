@@ -33,6 +33,7 @@ func main(){
 
 	apiCfg := &config.ApiConfig{	
 		Database: dbQueries, 
+		Jwt_secret : os.Getenv("JWT_SECRET"), //Loading the JWT_SECRET
 	}	
 	// serving files from the current dir (index.html)
 	router.Handle("/app/",http.StripPrefix("/app/", http.FileServer(http.Dir("."))))
