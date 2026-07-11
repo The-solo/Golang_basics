@@ -3,6 +3,9 @@ package auth
 import (
 	"log"
 	"time"
+	"errors"
+	"strings"
+	"net/http"
 	"github.com/google/uuid"
 	"github.com/alexedwards/argon2id"
 	"github.com/golang-jwt/jwt/v5"
@@ -33,7 +36,6 @@ func CheckPassword (password, hash string) (bool, error) {
  }
 
 func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (string, error) {
-
 	// Basics of validation using claims.
 	claimsData := &Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -57,11 +59,9 @@ func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (str
 
 //JWT token validation.
 func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {	
-
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (any, error) {
 		return []byte(tokenSecret), nil
 	})
-
 	if err != nil {
 		log.Fatal(err)
 		return uuid.Nil, err // nil uuid return type
@@ -75,8 +75,23 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 		}
 		return uuid.Parse(subjectStr) // the GetSubject method return 2 values including error.
 	} 
-
 	return uuid.Nil, err
+}
+
+
+// getting the token from the request.
+func GetBearerToken(headers http.Header) (string, error) {
+
+	tokenHeader := headers.Get("Authorization") //gets the first value associated with the key
+	if tokenHeader == "" {
+		log.Fatal("Empty Authorization header")
+	}
+
+	if len(tokenHeader) > 0 {
+		token := strings.TrimPrefix(tokenHeader, "Bearer ") //triming token.
+		return token, nil
+	}
+	return "", errors.New("Missing Authorization header!")
 }
 
 
