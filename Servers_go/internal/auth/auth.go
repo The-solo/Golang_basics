@@ -7,8 +7,8 @@ import (
 	"strings"
 	"net/http"
 	"github.com/google/uuid"
-	"github.com/alexedwards/argon2id"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/alexedwards/argon2id"
 )
 
 func HashPassword (password string) (string, error) {
@@ -36,7 +36,7 @@ func CheckPassword (password, hash string) (bool, error) {
  }
 
 func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (string, error) {
-	// Basics of validation using claims.
+	//claims are the custom validation fields for the JWT token creation.
 	claimsData := &Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
@@ -46,7 +46,7 @@ func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (str
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claimsData) // Generate token.
-	tokenString, err := token.SignedString(tokenSecret)
+	tokenString, err := token.SignedString([]byte(tokenSecret)) //explicit type conversion.
 
 	if err != nil{
 		log.Print("Error signing key", err)
@@ -54,7 +54,6 @@ func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (str
 	}
 	return tokenString, nil
 }
-
 
 
 //JWT token validation.
