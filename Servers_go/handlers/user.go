@@ -64,7 +64,6 @@ func (state *ApiCfgState)CreateUserHandler(w http.ResponseWriter, req *http.Requ
 			HashedPassword : hash,
 		},
 	)
-
 	if err != nil {
 		log.Printf("Error creating user in DB: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)

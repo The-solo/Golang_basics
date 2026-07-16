@@ -20,7 +20,7 @@ type LoginInfo struct {
 	Token	  string 	`json:"token`
 }
 
-var Jwt_secret = os.Getenv("JWT_SECRET")
+var Jwt_secret = os.Getenv("JWT_SECRET") //globally accessible in /hanlders
 
 func (state *ApiCfgState) Login(w http.ResponseWriter, req *http.Request) {
 
