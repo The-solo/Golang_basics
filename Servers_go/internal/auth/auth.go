@@ -6,6 +6,8 @@ import (
 	"errors"
 	"strings"
 	"net/http"
+	"crypto/rand"
+	"encoding/hex"
 	"github.com/google/uuid"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/alexedwards/argon2id"
@@ -78,7 +80,6 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 
 // getting the token from the request.
 func GetBearerToken(headers http.Header) (string, error) {
-
 	tokenHeader := headers.Get("Authorization") //gets the first value associated with the key
 	if tokenHeader == "" {
 		log.Fatal("Empty Authorization header")
@@ -92,4 +93,8 @@ func GetBearerToken(headers http.Header) (string, error) {
 	return "", errors.New("Missing Authorization header!")
 }
 
-
+func MakeRefreshToken() string {
+	key := make([]byte, 32)
+	rand.Read(key) //generating 256 bit random data
+	return hex.EncodeToString(key)
+}

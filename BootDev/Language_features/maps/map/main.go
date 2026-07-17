@@ -10,7 +10,7 @@ func getUserMap(names []string, phoneNumbers []int) (map[string]user, error) {
 		return phonebook, errors.New("invalid sizes")
 	}
 	for i, name := range names{ //since both slices are of same size the phoneNumbers should work as well.
-		phonebook[name]= user {
+		phonebook[name] = user {
 			name : name,
 			phoneNumber : phoneNumbers[i],
 		} // This is how you update the map with the dynamic values of struct.
