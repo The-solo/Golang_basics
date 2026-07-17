@@ -29,11 +29,9 @@ func CheckPassword (password, hash string) (bool, error) {
 	return true, nil
 }
 
-
-
- type Claims struct {
-	 jwt.RegisteredClaims
- }
+type Claims struct {
+	jwt.RegisteredClaims
+}
 
 func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (string, error) {
 	//claims are the custom validation fields for the JWT token creation.
